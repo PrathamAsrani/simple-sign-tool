@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import { PDFDocument } from "pdf-lib";
 import { Button } from "@/components/ui/button";
-import { Download, Edit, ArrowLeft } from "lucide-react";
+import { Download, Upload as UploadIcon, ArrowLeft, RotateCcw } from "lucide-react";
 import { SignatureDrawer } from "./SignatureDrawer";
 import { toast } from "sonner";
 import { saveAs } from "file-saver";
@@ -24,16 +24,24 @@ interface SignaturePosition {
   page: number;
 }
 
+type ResizeHandle = "nw" | "ne" | "sw" | "se" | null;
+
 export const PDFEditor = ({ file, onBack }: PDFEditorProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const signatureImageRef = useRef<HTMLImageElement | null>(null);
   const [showSignatureDrawer, setShowSignatureDrawer] = useState(false);
   const [signature, setSignature] = useState<SignaturePosition | null>(null);
   const [pdfDoc, setPdfDoc] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [numPages, setNumPages] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeHandle, setResizeHandle] = useState<ResizeHandle>(null);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [signatureStart, setSignatureStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadPDF();
@@ -43,7 +51,11 @@ export const PDFEditor = ({ file, onBack }: PDFEditorProps) => {
     if (pdfDoc && currentPage) {
       renderPage(currentPage);
     }
-  }, [pdfDoc, currentPage, signature]);
+  }, [pdfDoc, currentPage]);
+
+  useEffect(() => {
+    drawSignatureOverlay();
+  }, [signature]);
 
   const loadPDF = async () => {
     try {
@@ -59,87 +71,270 @@ export const PDFEditor = ({ file, onBack }: PDFEditorProps) => {
   };
 
   const renderPage = async (pageNum: number) => {
-    if (!pdfDoc || !canvasRef.current) return;
+    if (!pdfDoc || !canvasRef.current || !overlayCanvasRef.current) return;
 
-    const page = await pdfDoc.getPage(pageNum);
-    const viewport = page.getViewport({ scale: 1.5 });
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
+    try {
+      const page = await pdfDoc.getPage(pageNum);
+      
+      // Calculate scale to fit container
+      const containerWidth = containerRef.current?.clientWidth || 800;
+      const desiredWidth = Math.min(containerWidth - 48, 900);
+      const viewport = page.getViewport({ scale: 1 });
+      const scale = desiredWidth / viewport.width;
+      const scaledViewport = page.getViewport({ scale });
 
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
+      const canvas = canvasRef.current;
+      const overlayCanvas = overlayCanvasRef.current;
+      const context = canvas.getContext("2d");
 
-    await page.render({
-      canvasContext: context,
-      viewport: viewport,
-    }).promise;
+      canvas.width = scaledViewport.width;
+      canvas.height = scaledViewport.height;
+      overlayCanvas.width = scaledViewport.width;
+      overlayCanvas.height = scaledViewport.height;
+
+      if (context) {
+        await page.render({
+          canvasContext: context,
+          viewport: scaledViewport,
+        }).promise;
+      }
+
+      drawSignatureOverlay();
+    } catch (error) {
+      console.error("Error rendering page:", error);
+      toast.error("Failed to render PDF page");
+    }
+  };
+
+  const drawSignatureOverlay = () => {
+    if (!overlayCanvasRef.current) return;
+    
+    const canvas = overlayCanvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Clear overlay
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw signature if on current page
-    if (signature && signature.page === pageNum && context) {
-      const img = new Image();
-      img.onload = () => {
-        context.drawImage(
-          img,
-          signature.x,
-          signature.y,
-          signature.width,
-          signature.height
+    if (signature && signature.page === currentPage && signatureImageRef.current) {
+      ctx.drawImage(
+        signatureImageRef.current,
+        signature.x,
+        signature.y,
+        signature.width,
+        signature.height
+      );
+
+      // Draw selection border and handles
+      ctx.strokeStyle = "hsl(var(--primary))";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(signature.x, signature.y, signature.width, signature.height);
+
+      // Draw resize handles
+      const handleSize = 10;
+      const handles = [
+        { x: signature.x, y: signature.y }, // nw
+        { x: signature.x + signature.width, y: signature.y }, // ne
+        { x: signature.x, y: signature.y + signature.height }, // sw
+        { x: signature.x + signature.width, y: signature.y + signature.height }, // se
+      ];
+
+      ctx.fillStyle = "#ffffff";
+      handles.forEach((handle) => {
+        ctx.strokeRect(
+          handle.x - handleSize / 2,
+          handle.y - handleSize / 2,
+          handleSize,
+          handleSize
         );
-      };
-      img.src = signature.dataUrl;
+        ctx.fillRect(
+          handle.x - handleSize / 2,
+          handle.y - handleSize / 2,
+          handleSize,
+          handleSize
+        );
+      });
     }
   };
 
   const handleSignatureCreated = (dataUrl: string) => {
-    setSignature({
-      x: 50,
-      y: 50,
-      width: 200,
-      height: 100,
-      dataUrl,
-      page: currentPage,
-    });
-    setShowSignatureDrawer(false);
-    toast.success("Signature added! Drag it to position.");
+    const img = new Image();
+    img.onload = () => {
+      signatureImageRef.current = img;
+      const aspectRatio = img.width / img.height;
+      const defaultHeight = 80;
+      const defaultWidth = defaultHeight * aspectRatio;
+
+      setSignature({
+        x: 50,
+        y: 50,
+        width: defaultWidth,
+        height: defaultHeight,
+        dataUrl,
+        page: currentPage,
+      });
+      setShowSignatureDrawer(false);
+      toast.success("Signature added! Drag to position, use corners to resize.");
+    };
+    img.src = dataUrl;
   };
 
-  const handleCanvasMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!signature || !canvasRef.current) return;
+  const handleSignatureImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      handleSignatureCreated(dataUrl);
+    };
+    reader.readAsDataURL(file);
+  };
 
-    if (
+  const getResizeHandle = (x: number, y: number): ResizeHandle => {
+    if (!signature) return null;
+
+    const handleSize = 10;
+    const handles = {
+      nw: { x: signature.x, y: signature.y },
+      ne: { x: signature.x + signature.width, y: signature.y },
+      sw: { x: signature.x, y: signature.y + signature.height },
+      se: { x: signature.x + signature.width, y: signature.y + signature.height },
+    };
+
+    for (const [key, handle] of Object.entries(handles)) {
+      if (
+        Math.abs(x - handle.x) <= handleSize &&
+        Math.abs(y - handle.y) <= handleSize
+      ) {
+        return key as ResizeHandle;
+      }
+    }
+
+    return null;
+  };
+
+  const isPointInSignature = (x: number, y: number): boolean => {
+    if (!signature) return false;
+    return (
       x >= signature.x &&
       x <= signature.x + signature.width &&
       y >= signature.y &&
       y <= signature.y + signature.height
-    ) {
+    );
+  };
+
+  const handleCanvasMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!signature || !overlayCanvasRef.current || signature.page !== currentPage) return;
+
+    const rect = overlayCanvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const handle = getResizeHandle(x, y);
+
+    if (handle) {
+      setIsResizing(true);
+      setResizeHandle(handle);
+      setDragStart({ x, y });
+      setSignatureStart({
+        x: signature.x,
+        y: signature.y,
+        width: signature.width,
+        height: signature.height,
+      });
+    } else if (isPointInSignature(x, y)) {
       setIsDragging(true);
-      setDragOffset({
-        x: x - signature.x,
-        y: y - signature.y,
+      setDragStart({ x, y });
+      setSignatureStart({
+        x: signature.x,
+        y: signature.y,
+        width: signature.width,
+        height: signature.height,
       });
     }
   };
 
   const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDragging || !signature || !canvasRef.current) return;
+    if (!signature || !overlayCanvasRef.current) return;
 
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - dragOffset.x;
-    const y = e.clientY - rect.top - dragOffset.y;
+    const rect = overlayCanvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-    setSignature({
-      ...signature,
-      x: Math.max(0, Math.min(x, canvasRef.current.width - signature.width)),
-      y: Math.max(0, Math.min(y, canvasRef.current.height - signature.height)),
-    });
+    if (isResizing && resizeHandle) {
+      const dx = x - dragStart.x;
+      const dy = y - dragStart.y;
+      const aspectRatio = signatureStart.width / signatureStart.height;
+
+      let newWidth = signatureStart.width;
+      let newHeight = signatureStart.height;
+      let newX = signatureStart.x;
+      let newY = signatureStart.y;
+
+      switch (resizeHandle) {
+        case "se":
+          newWidth = Math.max(50, signatureStart.width + dx);
+          newHeight = newWidth / aspectRatio;
+          break;
+        case "sw":
+          newWidth = Math.max(50, signatureStart.width - dx);
+          newHeight = newWidth / aspectRatio;
+          newX = signatureStart.x + signatureStart.width - newWidth;
+          break;
+        case "ne":
+          newWidth = Math.max(50, signatureStart.width + dx);
+          newHeight = newWidth / aspectRatio;
+          newY = signatureStart.y + signatureStart.height - newHeight;
+          break;
+        case "nw":
+          newWidth = Math.max(50, signatureStart.width - dx);
+          newHeight = newWidth / aspectRatio;
+          newX = signatureStart.x + signatureStart.width - newWidth;
+          newY = signatureStart.y + signatureStart.height - newHeight;
+          break;
+      }
+
+      setSignature({
+        ...signature,
+        x: Math.max(0, Math.min(newX, overlayCanvasRef.current.width - newWidth)),
+        y: Math.max(0, Math.min(newY, overlayCanvasRef.current.height - newHeight)),
+        width: newWidth,
+        height: newHeight,
+      });
+    } else if (isDragging) {
+      const dx = x - dragStart.x;
+      const dy = y - dragStart.y;
+
+      setSignature({
+        ...signature,
+        x: Math.max(0, Math.min(signatureStart.x + dx, overlayCanvasRef.current.width - signature.width)),
+        y: Math.max(0, Math.min(signatureStart.y + dy, overlayCanvasRef.current.height - signature.height)),
+      });
+    } else {
+      // Update cursor based on position
+      const handle = getResizeHandle(x, y);
+      if (handle) {
+        overlayCanvasRef.current.style.cursor = `${handle}-resize`;
+      } else if (isPointInSignature(x, y)) {
+        overlayCanvasRef.current.style.cursor = "move";
+      } else {
+        overlayCanvasRef.current.style.cursor = "default";
+      }
+    }
   };
 
   const handleCanvasMouseUp = () => {
     setIsDragging(false);
+    setIsResizing(false);
+    setResizeHandle(null);
+  };
+
+  const handleReset = () => {
+    setSignature(null);
+    signatureImageRef.current = null;
+    toast.success("Signature removed");
   };
 
   const handleDownload = async () => {
@@ -149,6 +344,8 @@ export const PDFEditor = ({ file, onBack }: PDFEditorProps) => {
     }
 
     try {
+      toast.loading("Processing PDF...");
+      
       const arrayBuffer = await file.arrayBuffer();
       const pdfDoc = await PDFDocument.load(arrayBuffer);
       const pages = pdfDoc.getPages();
@@ -161,8 +358,8 @@ export const PDFEditor = ({ file, onBack }: PDFEditorProps) => {
       const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
 
       // Calculate position (PDF coordinates are from bottom-left)
-      const { height: pageHeight } = page.getSize();
-      const scale = page.getWidth() / (canvasRef.current?.width || 1);
+      const { height: pageHeight, width: pageWidth } = page.getSize();
+      const scale = pageWidth / (canvasRef.current?.width || 1);
 
       page.drawImage(signatureImage, {
         x: signature.x * scale,
@@ -190,38 +387,74 @@ export const PDFEditor = ({ file, onBack }: PDFEditorProps) => {
             Back
           </Button>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant="secondary"
               onClick={() => setShowSignatureDrawer(true)}
             >
-              <Edit className="mr-2 h-4 w-4" />
-              {signature ? "Change Signature" : "Add Signature"}
+              <UploadIcon className="mr-2 h-4 w-4" />
+              Draw Signature
             </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleSignatureImageUpload}
+              className="hidden"
+            />
+            <Button
+              variant="secondary"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <UploadIcon className="mr-2 h-4 w-4" />
+              Upload Signature
+            </Button>
+            {signature && (
+              <Button
+                variant="outline"
+                onClick={handleReset}
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Reset
+              </Button>
+            )}
             <Button
               onClick={handleDownload}
               disabled={!signature}
+              variant="default"
             >
               <Download className="mr-2 h-4 w-4" />
-              Download Signed PDF
+              Save & Download
             </Button>
           </div>
         </div>
 
         <div
           ref={containerRef}
-          className="bg-card rounded-2xl shadow-[0_20px_60px_-10px_hsl(var(--primary)/0.2)] p-6 overflow-auto"
+          className="bg-card rounded-2xl shadow-[0_20px_60px_-10px_hsl(var(--primary)/0.2)] p-6"
         >
           <div className="flex justify-center">
-            <canvas
-              ref={canvasRef}
-              onMouseDown={handleCanvasMouseDown}
-              onMouseMove={handleCanvasMouseMove}
-              onMouseUp={handleCanvasMouseUp}
-              onMouseLeave={handleCanvasMouseUp}
-              className="border border-border rounded-lg shadow-sm cursor-move max-w-full h-auto"
-            />
+            <div className="relative inline-block">
+              <canvas
+                ref={canvasRef}
+                className="border border-border rounded-lg shadow-sm max-w-full h-auto"
+              />
+              <canvas
+                ref={overlayCanvasRef}
+                onMouseDown={handleCanvasMouseDown}
+                onMouseMove={handleCanvasMouseMove}
+                onMouseUp={handleCanvasMouseUp}
+                onMouseLeave={handleCanvasMouseUp}
+                className="absolute top-0 left-0 cursor-default"
+              />
+            </div>
           </div>
+          
+          {signature && signature.page === currentPage && (
+            <div className="mt-4 text-center text-sm text-muted-foreground">
+              <p>💡 Drag signature to move • Use corner handles to resize</p>
+            </div>
+          )}
         </div>
 
         {numPages > 1 && (
@@ -233,7 +466,7 @@ export const PDFEditor = ({ file, onBack }: PDFEditorProps) => {
             >
               Previous
             </Button>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm font-medium">
               Page {currentPage} of {numPages}
             </span>
             <Button
