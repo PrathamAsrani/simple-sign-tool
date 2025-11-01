@@ -344,7 +344,7 @@ export const PDFEditor = ({ file, onBack }: PDFEditorProps) => {
     }
 
     try {
-      toast.loading("Processing PDF...");
+      const toastId = toast.loading("Processing PDF...");
       
       const arrayBuffer = await file.arrayBuffer();
       const pdfDoc = await PDFDocument.load(arrayBuffer);
@@ -355,7 +355,12 @@ export const PDFEditor = ({ file, onBack }: PDFEditorProps) => {
       const signatureImageBytes = await fetch(signature.dataUrl).then((res) =>
         res.arrayBuffer()
       );
-      const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
+      
+      // Detect image format and use appropriate embed method
+      const isPng = signature.dataUrl.startsWith('data:image/png');
+      const signatureImage = isPng 
+        ? await pdfDoc.embedPng(signatureImageBytes)
+        : await pdfDoc.embedJpg(signatureImageBytes);
 
       // Calculate position (PDF coordinates are from bottom-left)
       const { height: pageHeight, width: pageWidth } = page.getSize();
@@ -371,6 +376,8 @@ export const PDFEditor = ({ file, onBack }: PDFEditorProps) => {
       const pdfBytes = await pdfDoc.save();
       const blob = new Blob([new Uint8Array(pdfBytes)], { type: "application/pdf" });
       saveAs(blob, `signed-${file.name}`);
+      
+      toast.dismiss(toastId);
       toast.success("PDF downloaded successfully!");
     } catch (error) {
       toast.error("Failed to save PDF");
