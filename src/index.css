@@ -107,3 +107,15 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* The site takes the app's ground, ink and type. Square corners throughout:
+   the one rounded thing in this design system is a camera shutter, and there
+   isn't one on a website. */
+@layer base {
+  body {
+    @apply bg-industry-bg font-body text-industry-ink antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-heading;
+  }
+}
