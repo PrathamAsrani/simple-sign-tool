@@ -13,7 +13,39 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        // Barlow Condensed over Barlow — the app's type, so the site and the
+        // product read as one thing.
+        heading: ['"Barlow Condensed"', "system-ui", "sans-serif"],
+        body: ["Barlow", "system-ui", "sans-serif"],
+      },
       colors: {
+        // The Industry palette, transcribed from the app's design system.
+        industry: {
+          bg: "#F2F2F3",
+          surface: "#E9E9EA",
+          ink: "#1D1F20",
+          steel: "#5980A6",
+          steel600: "#597EA3",
+          steel700: "#416180",
+          steel800: "#2C455D",
+          navy: "#1D2D3D",
+          a100: "#EEF6FF",
+          a200: "#D6EBFF",
+          a300: "#B5D9FD",
+          a400: "#94BCE3",
+          n200: "#E7E7EA",
+          n400: "#B7B7BA",
+          n600: "#7A7A7D",
+          n700: "#5D5D60",
+          line: "rgba(29,31,32,0.16)",
+        },
+        // Logo-only hues. Nothing else on the site may use these.
+        mark: {
+          blue: "#2B3F7D",
+          amber: "#F0A323",
+          fold: "#CFD6E8",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
