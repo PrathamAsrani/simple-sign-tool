@@ -12,7 +12,7 @@ export const site = {
     "PDF Master turns photos into a PDF and reads PDFs on Android. Free, no ads, no account, and nothing ever leaves your phone.",
 
   /** Individual developer account. Swap for the company name if you register one. */
-  legalName: "Pratham Asrani",
+  legalName: "Pratham Ashok Asrani",
   entityType: "Individual developer",
 
   email: "prathamasrani.cs@gmail.com",
