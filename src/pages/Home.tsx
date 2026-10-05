@@ -4,10 +4,12 @@ import { Lockup, Mark } from "@/components/site/Mark";
 import { addressLines, mailtoUrl, site, telUrl, whatsappUrl } from "@/lib/site";
 
 const shots = [
-  { src: "/screens/camera.png", alt: "Camera screen capturing a document page", caption: "Shoot pages" },
-  { src: "/screens/crop.png", alt: "Crop editor with four draggable corner handles", caption: "Crop the corners" },
-  { src: "/screens/arrange.png", alt: "Arrange pages grid with page numbers", caption: "Drag the order" },
-  { src: "/screens/reader.png", alt: "PDF reader showing a page", caption: "Read any PDF" },
+  { src: "/screens/store-1-edit.jpg", alt: "Editing a rental agreement: name, signature and date added", caption: "Edit & sign any PDF" },
+  { src: "/screens/store-2-noads.jpg", alt: "The file list — no ads, no account, works offline", caption: "No ads. Ever." },
+  { src: "/screens/store-3-scan.jpg", alt: "Scanning an invoice with automatic page edges and a corner magnifier", caption: "Scan with pinpoint corners" },
+  { src: "/screens/store-4-sheets.jpg", alt: "A formatted Excel budget opened in the app", caption: "Open Excel, Sheets & CSV" },
+  { src: "/screens/store-5-convert.jpg", alt: "Converting a PDF to Word, Excel or PowerPoint", caption: "Convert PDF ↔ Office" },
+  { src: "/screens/store-6-tools.jpg", alt: "Every tool: scan, merge, split, JPG↔PDF, protect, ZIP, convert", caption: "Every PDF tool" },
 ];
 
 const makeFeatures = [
@@ -52,13 +54,13 @@ export default function Home() {
           <div>
             <Lockup size={44} variant="fanned" textClassName="text-industry-bg" />
             <h1 className="mt-10 text-6xl font-bold uppercase leading-[0.94] tracking-tight sm:text-7xl">
-              Photos in.
+              Every PDF tool.
               <br />
-              PDF out.
+              On your phone.
             </h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-industry-a200">
-              Camera or gallery. Crop the corners, drag the order, export. Free, and nothing
-              leaves your phone.
+              Edit, sign, scan, convert, protect and zip — the complete PDF toolkit, on your phone.
+              No ads, no account, and nothing ever leaves your device.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-2">
@@ -99,14 +101,14 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Two device shots, framed the way the store art frames them. */}
+          {/* The two lead store images: editing, and no ads. */}
           <div className="flex justify-center gap-5 lg:justify-end">
-            {shots.slice(1, 3).map((shot) => (
+            {shots.slice(0, 2).map((shot) => (
               <img
                 key={shot.src}
                 src={shot.src}
                 alt={shot.alt}
-                className="w-[46%] max-w-[240px] border-4 border-industry-steel bg-industry-bg object-cover"
+                className="w-[46%] max-w-[260px] rounded-xl bg-white object-cover shadow-xl"
               />
             ))}
           </div>
@@ -117,9 +119,9 @@ export default function Home() {
       <section className="border-b border-industry-line">
         <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
           <h2 className="font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-industry-n700">
-            Every screen
+            See it in action
           </h2>
-          <div className="mt-8 grid grid-cols-2 gap-6 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-6 md:grid-cols-3">
             {shots.map((shot) => (
               <figure key={shot.src}>
                 <Blueprint className="bg-industry-surface">
