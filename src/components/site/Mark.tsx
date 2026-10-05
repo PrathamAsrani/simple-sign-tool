@@ -21,7 +21,7 @@ export function Mark({
         viewBox="0 0 100 100"
         className={className}
         role="img"
-        aria-label="PDF Master"
+        aria-label="IntelliPDF"
       >
         <rect
           x="15.6"
@@ -57,7 +57,7 @@ export function Mark({
       viewBox="0 0 100 100"
       className={className}
       role="img"
-      aria-label="PDF Master"
+      aria-label="IntelliPDF"
     >
       <rect width="100" height="100" rx="23" fill="#2B3F7D" />
       <rect
@@ -97,7 +97,7 @@ export function Lockup({
         className={`font-heading font-bold uppercase tracking-[0.16em] ${textClassName}`}
         style={{ fontSize: size * 0.52 }}
       >
-        PDF Master
+        IntelliPDF
       </span>
     </span>
   );

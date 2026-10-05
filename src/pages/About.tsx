@@ -13,7 +13,7 @@ export default function About() {
       <PageHeader
         kicker="About"
         title="About us"
-        intro="PDF Master is built and published by one developer in Gurgaon, India."
+        intro="IntelliPDF is built and published by one developer in Gurgaon, India."
       />
 
       <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-8">
@@ -78,7 +78,7 @@ export default function About() {
               <dt className="font-heading font-semibold uppercase tracking-[0.06em] text-industry-n700">
                 Products
               </dt>
-              <dd className="text-industry-ink">PDF Master for Android</dd>
+              <dd className="text-industry-ink">IntelliPDF for Android</dd>
             </div>
           </dl>
         </div>
@@ -87,25 +87,27 @@ export default function About() {
       <Prose>
         <h2>What we build</h2>
         <p>
-          PDF Master does two things: it turns photographs into a PDF, and it reads PDFs. It was
-          built because the obvious way to scan a document on a phone had become a maze of
-          watermarks, subscriptions, sign-in walls and adverts — for a job that takes ten seconds
-          and needs no server at all.
+          IntelliPDF is a complete PDF toolkit for Android: edit, sign, scan, convert, merge,
+          split, protect and zip — and open Word, Excel and CSV files. It was built because doing
+          these jobs on a phone had become a maze of watermarks, subscriptions, sign-in walls,
+          adverts and uploads to someone else's server.
         </p>
 
         <h2>How we build it</h2>
         <p>
           The app is written natively for Android and uses the platform's own PDF engine, so it
-          needs no third-party document library. It ships without the internet permission, which
-          means it cannot transmit anything anywhere. That is not a policy we promise to follow; it
-          is a property of the software, and you can verify it yourself in the permission list on
-          the Play listing.
+          needs no third-party document library and no server. Every document is processed on
+          your phone. The app's only network use is Google Play Billing, for purchases — no
+          document, page or file name is ever sent.
         </p>
 
         <h2>How it is paid for</h2>
         <p>
-          It isn't. There is no paid tier, no subscription, no advertising and no data being sold —
-          because none is collected. If that ever changes, it will be said plainly here and in the{" "}
+          By one small purchase: editing is free to try, and saving an edited PDF costs ₹9 in India
+          (a local price elsewhere), paid through Google Play. Re-saving the same document is free.
+          Reading, scanning, converting, merging, splitting, protecting and zipping are free. There
+          is no subscription, no advertising and no data being sold. Any change will be said plainly
+          here and in the{" "}
           <Link to="/privacy">privacy policy</Link> before the change ships.
         </p>
 
