@@ -20,7 +20,7 @@ const faqs = [
   },
   {
     q: "Does the app need an internet connection?",
-    a: "Never. It has no internet permission at all, so every feature works in airplane mode.",
+    a: "No. Every feature works offline, in airplane mode. The only thing that needs a connection is buying an edited-PDF save through Google Play.",
   },
   {
     q: "Why does it ask for the camera?",

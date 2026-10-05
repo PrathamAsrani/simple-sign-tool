@@ -37,7 +37,7 @@ const readFeatures = [
 ];
 
 const promises = [
-  { title: "No uploads", body: "The app ships with no internet permission at all. It cannot send your documents anywhere, even by mistake." },
+  { title: "No uploads", body: "Documents are opened, edited and converted on your phone. Nothing is ever uploaded — the only network use is Google Play purchases." },
   { title: "No account", body: "Nothing to sign up for, nothing to log in to. Install it and it works." },
   { title: "No ads", body: "Nothing blinks, nothing interrupts, nothing is sold." },
   { title: "No tracking", body: "No analytics, no crash reporting, no identifiers of any kind." },
@@ -186,8 +186,8 @@ export default function Home() {
             Your files stay yours
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-industry-a200">
-            This is not a promise about how we behave. It is a property of the app: PDF Master is
-            built without a network stack, so there is nothing to switch off and nothing to trust.
+            Every document is read, edited and converted on your phone. The app runs no server and
+            uploads nothing; the only time it goes online is to process a Google Play purchase.
           </p>
           <div className="mt-12 grid gap-px border border-white/15 bg-white/15 sm:grid-cols-2 lg:grid-cols-4">
             {promises.map((p) => (

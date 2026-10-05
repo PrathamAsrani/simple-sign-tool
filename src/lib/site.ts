@@ -6,10 +6,10 @@
  * the support page must never disagree.
  */
 export const site = {
-  appName: "PDF Master",
-  tagline: "Photos in. PDF out.",
+  appName: "IntelliPDF",
+  tagline: "Every PDF tool. On your phone.",
   description:
-    "PDF Master turns photos into a PDF and reads PDFs on Android. Free, no ads, no account, and nothing ever leaves your phone.",
+    "IntelliPDF edits, signs, scans, converts and protects PDFs on Android. No ads, no account, and your documents never leave your phone.",
 
   /** Individual developer account. Swap for the company name if you register one. */
   legalName: "Pratham Ashok Asrani",
@@ -32,7 +32,7 @@ export const site = {
   /** Play listing goes live after review; the button says so until then. */
   playStoreUrl: "",
 
-  lastUpdated: "16 August 2026",
+  lastUpdated: "5 October 2026",
 } as const;
 
 export const addressLines = [

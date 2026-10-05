@@ -13,14 +13,16 @@ export default function DataDeletion() {
       <PageHeader
         kicker="Legal"
         title="Data Deletion"
-        intro="PDF Master has no accounts and no servers, so there is no account to delete and no data of yours held anywhere by us."
+        intro="IntelliPDF has no accounts and no servers, so there is no account to delete and no data of yours held anywhere by us."
       />
       <Prose>
         <h2>There is no account</h2>
         <p>
-          PDF Master does not ask you to register, does not create a profile, and has no server-side
+          IntelliPDF does not ask you to register, does not create a profile, and has no server-side
           storage. We hold no copy of your documents, no email address, no device identifier and no
-          usage history. There is therefore nothing for us to delete on your behalf.
+          usage history. There is therefore nothing for us to delete on your behalf. If you bought an
+          edited-PDF save, that purchase is recorded by Google Play in your Google account; the app's
+          own record of it stays on your phone and is removed when you uninstall the app.
         </p>
 
         <h2>Deleting the files on your device</h2>
@@ -55,7 +57,7 @@ export default function DataDeletion() {
         <h2>Files you shared elsewhere</h2>
         <p>
           If you used Share to send a PDF to another app, email or cloud service, that copy is
-          outside PDF Master's control. Delete it in whichever app or service now holds it.
+          outside IntelliPDF's control. Delete it in whichever app or service now holds it.
         </p>
 
         <h2>Making a request anyway</h2>

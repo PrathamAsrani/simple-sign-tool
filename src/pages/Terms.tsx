@@ -8,13 +8,13 @@ export default function Terms() {
       <PageHeader
         kicker="Legal"
         title="Terms of Service"
-        intro="The terms you agree to when you install and use PDF Master."
+        intro="The terms you agree to when you install and use IntelliPDF."
       />
       <Prose>
         <h2>1. Agreement</h2>
         <p>
           These terms are between you and {site.legalName}, {addressOneLine} ("we", "us"). By
-          installing or using the PDF Master Android application ("the app"), you agree to them. If
+          installing or using the IntelliPDF Android application ("the app"), you agree to them. If
           you do not agree, please do not use the app.
         </p>
 
@@ -39,6 +39,14 @@ export default function Terms() {
           stored on your device and are never transmitted to us — we have no access to them, no copy
           of them and no ability to retrieve them. You are solely responsible for the content you
           process and for keeping your own backups.
+        </p>
+
+        <h2>4a. Purchases</h2>
+        <p>
+          The app is free to install. Editing a PDF is free to try; saving an edited PDF is a one-time
+          in-app purchase per document (₹9 in India, a local price elsewhere), processed by Google
+          Play under Google Play's terms. Re-saving a document you have already paid for is free.
+          Refunds are handled by Google Play according to its refund policy.
         </p>
 
         <h2>5. Availability and updates</h2>
