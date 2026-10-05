@@ -30,7 +30,7 @@ export const site = {
   },
 
   /** Play listing goes live after review; the button says so until then. */
-  playStoreUrl: "",
+  playStoreUrl: "https://play.google.com/store/apps/details?id=app.pdfmaster",
 
   lastUpdated: "5 October 2026",
 } as const;
