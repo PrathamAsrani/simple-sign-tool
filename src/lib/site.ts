@@ -21,18 +21,18 @@ export const site = {
   phoneDigits: "919145495032",
 
   address: {
-    line1: "102, B63, Palam Vihar",
-    line2: "Dharam Colony, Sector 12",
-    city: "Gurgaon",
-    state: "Haryana",
-    postalCode: "122017",
+    line1: "Plot No. 839, Gali No. 13",
+    line2: "Ahuja Nagar",
+    city: "Nagpur",
+    state: "Maharashtra",
+    postalCode: "440014",
     country: "India",
   },
 
   /** Play listing goes live after review; the button says so until then. */
   playStoreUrl: "https://play.google.com/store/apps/details?id=app.pdfmaster",
 
-  lastUpdated: "5 October 2026",
+  lastUpdated: "8 November 2026",
 } as const;
 
 export const addressLines = [

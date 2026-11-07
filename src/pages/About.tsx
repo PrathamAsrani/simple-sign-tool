@@ -13,7 +13,7 @@ export default function About() {
       <PageHeader
         kicker="About"
         title="About us"
-        intro="IntelliPDF is built and published by one developer in Gurgaon, India."
+        intro="IntelliPDF is built and published by one developer in Nagpur, India."
       />
 
       <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-8">
